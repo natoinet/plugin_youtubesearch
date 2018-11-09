@@ -18,10 +18,10 @@ Tucat must be installed https://github.com/natoinet/tucat
 1. Add your Google API key to .env
 
 * Open the .env file
-
+```
   $ cd ..
-
   $ vim .env
+```
 
 * Add at the end of the .env file
 
