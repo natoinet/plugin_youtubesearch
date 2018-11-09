@@ -7,9 +7,9 @@ TuCat YouTube Search Plugin
 
 Tucat must be installed https://github.com/natoinet/tucat
 
-### Optional : If using docker
+### Optional : When using docker
 
-If using Docker, you must first connect to the Django docker container :
+If using Docker, you must first connect to the Djangoapp docker container :
 ```
   $ sudo docker exec -it tucat_djangoapp_1 bash
 ```
@@ -35,12 +35,14 @@ If using Docker, you must first connect to the Django docker container :
   GOOGLE_API_KEY=AddYour_Google_API_Key_Here
 ```
 
-2. Open docker.py
+2. Activate the plugin in LOCAL_APPS in docker.py
+
+* Open docker.py
 ```
   $ vim config/settings/docker.py
 ```
 
-3. Add tucat.plugin_youtubesearch at the end of LOCAL_APPS in docker.py
+* Add tucat.plugin_youtubesearch at the end of LOCAL_APPS in docker.py
 ```
   LOCAL_APPS = (
     ..
@@ -48,13 +50,13 @@ If using Docker, you must first connect to the Django docker container :
   )
 ```
 
-4. Migrate the database
+3. Migrate the database
 ```
   $ python manage.py makemigrations plugin_youtubesearch
   $ python manage.py migrate
 ```
 
-5. Restart the Tucat
+4. Restart the Tucat
 ```
   $ supervisorctl
   restart all
