@@ -5,7 +5,7 @@ from django.contrib.postgres.fields import JSONField
 from tucat.application.models import TucatElement
 from tucat.core.models import TucatTask
 
-from tucat.plugin_youtubesearch.api import get_api_key
+from tucat.plugin_youtubesearch.api import GoogleAPIClient
 
 class SuggestedQuery(TucatElement):
     query = models.CharField(max_length=200, default='')
@@ -19,7 +19,7 @@ class SuggestedQuery(TucatElement):
 
     def get_url(self):
         # TODO Add APIKEY to .env
-        api_key = get_api_key()
+        api_key = GoogleAPIClient().api_key
 
         # https://codepen.io/tayfunerbilen/pen/rIHvD
         # https://gist.github.com/eristoddle/3750993
@@ -50,12 +50,13 @@ class SuggestedQueryResult(models.Model):
 class YouTubeQueryResult(models.Model):
     query = models.CharField(max_length=200, default='')
     suggested_query_result = models.ForeignKey(SuggestedQueryResult, models.CASCADE)
-    result = JSONField()
+    search_result = JSONField(default=dict)
+    videos_result = JSONField(default=dict)
 
     def __str__(self):
         return str(self.query)
 
     @classmethod
     def create(cls, query, suggested_query_result, result):
-        youtube_query_result = cls(query=query, suggested_query_result=suggested_query_result, result=result)
+        youtube_query_result = cls(query=query, suggested_query_result=suggested_query_result, search_result=result)
         return youtube_query_result

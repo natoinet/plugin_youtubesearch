@@ -10,22 +10,25 @@ import environ
 
 logger = logging.getLogger('plugins')
 
-def get_api_key():
-    ROOT_DIR = environ.Path(__file__) - 3
-    env = environ.Env(DEBUG=(bool, False),) # set default values and casting
-    return env('GOOGLE_API_KEY')
+class Singleton(type):
+    _instances = {}
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
+        return cls._instances[cls]
 
-
-def get_google_api_service(api_name, api_version):
-    try:
-        logger.debug('get_google_api_service')
-        api_key = get_api_key()
-        service = build(api_name, api_version, developerKey=api_key)
-
-        return service
-    except Exception as e:
-        logger.exception(e)
-        raise
+class GoogleAPIClient(metaclass=Singleton):
+    def __init__(self):
+        try:
+            ROOT_DIR = environ.Path(__file__) - 3
+            env = environ.Env(DEBUG=(bool, False),)
+            api_name = 'youtube'
+            api_version = 'v3'
+            self.api_key = env('GOOGLE_API_KEY')
+            self.service = build(api_name, api_version, developerKey=self.api_key)
+        except Exception as e:
+            logger.exception(e)
+            raise
 
 '''
 def get_google_api_service(scopes, api_name, api_version):
@@ -39,16 +42,29 @@ def get_google_api_service(scopes, api_name, api_version):
     return service
 '''
 
-def call_youtube_api(query):
-    #scopes = ['https://www.googleapis.com/auth/youtube.readonly']
-    api_name = 'youtube'
-    api_version = 'v3'
-
+def call_youtube_search_list_api(query):
     try:
-        logger.debug('call_youtube_api %s', query)
+        logger.debug('call_youtube_search_list_api %s', query)
 
-        youtube = get_google_api_service(api_name, api_version)
-        search_response = youtube.search().list(q=query, part='id,snippet').execute()
+        part='id,snippet'
+
+        youtube = GoogleAPIClient().service
+        search_response = youtube.search().list(q=query, part=part).execute()
+
+        return search_response
+    except Exception as e:
+        logger.exception(e)
+        raise
+
+def call_youtube_videos_list_api(video_ids):
+    try:
+        logger.info('call_youtube_videos_list_api %s', video_ids)
+
+        part = 'id,contentDetails,liveStreamingDetails,localizations,snippet,statistics,status,topicDetails'
+
+        youtube = GoogleAPIClient().service
+        search_response = youtube.videos().list(part=part, id=video_ids).execute()
+
         return search_response
     except Exception as e:
         logger.exception(e)

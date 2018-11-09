@@ -14,7 +14,7 @@ from tucat.core.celery import app
 from tucat.core.models import DjangoAdminCeleryTaskLock
 from tucat.application.models import TucatApplication
 from tucat.plugin_youtubesearch.models import SuggestedQuery, SuggestedQueryResult, YouTubeQueryResult
-from tucat.plugin_youtubesearch.api import call_youtube_api
+from tucat.plugin_youtubesearch.api import call_youtube_search_list_api, call_youtube_videos_list_api
 
 
 logger = logging.getLogger('plugins')
@@ -53,8 +53,7 @@ def do_run(obj_pk):
 
         for element in queries:
             logger.info('do_run %s', element.query)
-            suggested_query_result_pk = do_run_google_suggest_query(element.pk)
-            do_run_youtube_api(suggested_query_result_pk)
+            do_run_google_suggest_query(element.pk)
 
         one_app.update(status='c')
 
@@ -83,7 +82,7 @@ def do_run_google_suggest_query(query_pk):
             suggested_query_result.save()
             logger.info("do_run_google_suggest_query - Requests is ok : %s %s %s", response.status_code, response.url, result)
 
-            return suggested_query_result.pk
+            do_run_youtube_search_list_api(suggested_query_result.pk)
         else:
             logger.error("do_run_google_suggest_query - Requests is not ok : %s %s %s", response.url, response.status_code, response.history)
             raise
@@ -92,19 +91,39 @@ def do_run_google_suggest_query(query_pk):
         logger.exception(e)
         raise
 
-def do_run_youtube_api(suggested_query_result_pk):
+def do_run_youtube_search_list_api(suggested_query_result_pk):
     try:
-        logger.debug('do_run_youtube_api %s', suggested_query_result_pk)
+        logger.debug('do_run_youtube_search_list_api %s', suggested_query_result_pk)
 
         suggested_query = SuggestedQueryResult.objects.get(pk=suggested_query_result_pk)
 
-        logger.info('do_run_youtube_api results before calling api %s', str(suggested_query))
+        logger.info('do_run_youtube_search_list_api results before calling api %s', str(suggested_query))
 
         # Call Youtube API for all queries
         for query in suggested_query.result[1]:
-            result = call_youtube_api(query)
-            yt_query_result = YouTubeQueryResult.create(query, suggested_query, result)
+            search_result = call_youtube_search_list_api(query)
+            yt_query_result = YouTubeQueryResult.create(query, suggested_query, search_result)
             yt_query_result.save()
+
+            do_run_youtube_videos_api(yt_query_result.pk)
+
+    except Exception as e:
+        logger.exception(e)
+        raise
+
+def do_run_youtube_videos_api(yt_query_result_pk):
+    try:
+        logger.debug('do_run_youtube_api %s', yt_query_result_pk)
+
+        youtube_query_result = YouTubeQueryResult.objects.get(pk=yt_query_result_pk)
+
+        list_video_ids = [ item['id']['videoId'] for item in youtube_query_result.search_result['items'] if 'videoId' in item['id'] ]
+        str_video_ids = ",".join(list_video_ids)
+
+        videos_result = call_youtube_videos_list_api(str_video_ids)
+
+        youtube_query_result.videos_result = videos_result
+        youtube_query_result.save()
 
     except Exception as e:
         logger.exception(e)
