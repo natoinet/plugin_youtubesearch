@@ -7,13 +7,20 @@ TuCat YouTube Search Plugin
 
 Tucat must be installed https://github.com/natoinet/tucat
 
-### Clone the plugin repository
+### Optional : If using docker
 
+If using Docker, you must first connect to the Django docker container :
+```
+  $ sudo docker exec -it tucat_djangoapp_1 bash
+```
+
+### Clone plugin_youtubesearch GitHub repository
+```
   $ cd tucat
-
   $ git clone https://github.com/natoinet/plugin_youtubesearch
+```
 
-### Setup
+### Setup the plugin
 
 1. Add your Google API key to .env
 
@@ -41,7 +48,7 @@ Tucat must be installed https://github.com/natoinet/tucat
   )
 ```
 
-4. Migrate
+4. Migrate the database
 ```
   $ python manage.py makemigrations plugin_youtubesearch
   $ python manage.py migrate
