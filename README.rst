@@ -1,4 +1,4 @@
-# TuCat YouTube Search Plugin
+#  TuCat YouTube Search Plugin
 
 ## Installation guide
 
@@ -8,9 +8,9 @@ Tucat must be installed https://github.com/natoinet/tucat
 
 ### Clone the plugin repository
 
-  # cd tucat
+  $ cd tucat
 
-  # git clone https://github.com/natoinet/plugin_youtubesearch
+  $ git clone https://github.com/natoinet/plugin_youtubesearch
 
 ### Setup
 
@@ -18,9 +18,9 @@ Tucat must be installed https://github.com/natoinet/tucat
 
 * Open the .env file
 
-  # cd ..
+  $ cd ..
 
-  # vim .env
+  $ vim .env
 
 * Add at the end of the .env file
 
@@ -28,7 +28,7 @@ Tucat must be installed https://github.com/natoinet/tucat
 
 2. Open docker.py
 
-  # vim config/settings/docker.py
+  $ vim config/settings/docker.py
 
 3. Add tucat.plugin_youtubesearch at the end of LOCAL_APPS in docker.py
 
@@ -39,11 +39,11 @@ Tucat must be installed https://github.com/natoinet/tucat
 
 4. Migrate
 
-  # python manage.py makemigrations plugin_youtubesearch
-  # python manage.py migrate
+  $ python manage.py makemigrations plugin_youtubesearch
+  $ python manage.py migrate
 
 5. Restart the Tucat
 
-  # supervisorctl
+  $ supervisorctl
   restart all
   exit
