@@ -158,7 +158,7 @@ def do_run_export(self, obj_pk):
         youtube_queryset = YouTubeQueryResult.objects.filter(suggested_query_result=export.suggested_query_result)
 
         out_folder = str(settings.APPS_DIR.path('media')) + '/output'
-        filename = 'youtubesuggestedresults_' + timezone.now().strftime("%Y-%m-%d_%Hh%Mm%Ss") + '.tab'
+        filename = 'suggested_netvizz_' + export.name + timezone.now().strftime("_%Y-%m-%d_%Hh%Mm%Ss") + '.tab'
 
         with open(out_folder  + '/' + filename, 'w+') as f:
             generate_csv(youtube_queryset, f)

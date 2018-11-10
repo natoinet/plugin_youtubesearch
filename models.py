@@ -35,16 +35,19 @@ class InitialQuery(TucatElement):
         abstract = False
 
 class SuggestedQueryResult(models.Model):
-    query = models.ForeignKey(InitialQuery, models.CASCADE)
+    initial = models.ForeignKey(InitialQuery, models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     result = JSONField()
 
     def __str__(self):
-        return str(self.result)
+        if len(self.result) > 0 :
+            return self.date.strftime("%Y-%m-%d %H:%M.%S") + " : " + " - ".join( [i for i in self.result[1]] )
+        else:
+            return str(self.date) + str(self.result)
 
     @classmethod
     def create(cls, query, result):
-        suggested_query_result = cls(query=query, result=result)
+        suggested_query_result = cls(initial=query, result=result)
         return suggested_query_result
 
 class YouTubeQueryResult(models.Model):
