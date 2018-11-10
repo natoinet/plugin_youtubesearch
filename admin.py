@@ -43,10 +43,31 @@ class YouTubeQueryResultAdmin(admin.ModelAdmin):
     get_country.admin_order_field = 'suggested_query_result__query__country'
 
 class YouTubeQueryResultExportAdmin(admin.ModelAdmin):
-    actions = [run, stop, download, test]
+    actions = [run, stop, download]
 
     readonly_fields = ('task_id', 'status', 'file',)
-    list_display = ('suggested_query_result', 'status', 'download')
+    list_display = ('name', 'get_date', 'get_parent', 'get_language', \
+                    'get_country', 'status', 'download')
+
+    def get_date(self, obj):
+        return obj.suggested_query_result.date
+    get_date.short_description = 'Date'
+    get_date.admin_order_field = 'suggested_query_result__date'
+
+    def get_parent(self, obj):
+        return obj.suggested_query_result.query
+    get_parent.short_description = 'Parent'
+    get_parent.admin_order_field = 'suggested_query_result__query'
+
+    def get_language(self, obj):
+        return obj.suggested_query_result.query.language
+    get_language.short_description = 'Language'
+    get_language.admin_order_field = 'suggested_query_result__query__language'
+
+    def get_country(self, obj):
+        return obj.suggested_query_result.query.country
+    get_country.short_description = 'Country'
+    get_country.admin_order_field = 'suggested_query_result__query__country'
 
     class Media:
         # Adds the js script to the HTML admin view
