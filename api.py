@@ -49,7 +49,7 @@ def call_youtube_search_list_api(query):
         part='id,snippet'
 
         youtube = GoogleAPIClient().service
-        search_response = youtube.search().list(q=query, part=part).execute()
+        search_response = youtube.search().list(q=query, part=part, maxResults=50).execute()
 
         return search_response
     except Exception as e:

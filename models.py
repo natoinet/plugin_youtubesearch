@@ -7,7 +7,7 @@ from tucat.core.models import TucatTask
 
 from tucat.plugin_youtubesearch.api import GoogleAPIClient
 
-class SuggestedQuery(TucatElement):
+class InitialQuery(TucatElement):
     query = models.CharField(max_length=200, default='')
     language = models.CharField(max_length=5, default='fr')
     country = models.CharField(max_length=5, default='FR')
@@ -35,7 +35,7 @@ class SuggestedQuery(TucatElement):
         abstract = False
 
 class SuggestedQueryResult(models.Model):
-    query = models.ForeignKey(SuggestedQuery, models.CASCADE)
+    query = models.ForeignKey(InitialQuery, models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     result = JSONField()
 
@@ -60,3 +60,10 @@ class YouTubeQueryResult(models.Model):
     def create(cls, query, suggested_query_result, result):
         youtube_query_result = cls(query=query, suggested_query_result=suggested_query_result, search_result=result)
         return youtube_query_result
+
+class YouTubeQueryResultExport(TucatTask):
+    suggested_query_result = models.ForeignKey(SuggestedQueryResult, on_delete=models.CASCADE)
+    file = models.FileField(upload_to='output/', blank=True, null=True, default=None)
+
+    class Meta:
+        abstract = False
